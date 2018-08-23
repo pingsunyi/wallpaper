@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 import com.example.pingsunyi.wallpaper.Adapters.CollectionsAdapter;
 import com.example.pingsunyi.wallpaper.Models.Collection;
 import com.example.pingsunyi.wallpaper.R;
+import com.example.pingsunyi.wallpaper.Utils.Functions;
 import com.example.pingsunyi.wallpaper.Webservices.ApiInterface;
 import com.example.pingsunyi.wallpaper.Webservices.ServiceGenerator;
 
@@ -21,6 +22,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnItemClick;
 import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -47,6 +49,17 @@ public class CollectionsFragment extends Fragment{
         showProgressBar(true);
         getCollections();
         return view;
+    }
+
+
+    @OnItemClick(R.id.fragment_collections_gridview)
+    public void setGridView(int position) {
+        Collection collection = collections.get(position);
+        Bundle bundle = new Bundle();
+        bundle.putInt("collectionId", collection.getId());
+        CollectionFragment collectionFragment = new CollectionFragment();
+        collectionFragment.setArguments(bundle);
+        Functions.changeMainFragmentWithBack(getActivity(), collectionFragment);
     }
 
     private void getCollections() {
