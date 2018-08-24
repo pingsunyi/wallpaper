@@ -50,7 +50,7 @@ public class CollectionFragment extends Fragment {
     @BindView(R.id.fragment_collection_progressBar)
     ProgressBar progressBar;
 
-    @BindView(R.id.fragment_collection_recycleview)
+    @BindView(R.id.fragment_collection_recyclerview)
     RecyclerView recyclerView;
 
     private List<Photo> photos = new ArrayList<>();

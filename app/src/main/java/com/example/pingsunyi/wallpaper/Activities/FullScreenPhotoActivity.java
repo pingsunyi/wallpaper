@@ -2,6 +2,7 @@ package com.example.pingsunyi.wallpaper.Activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -16,11 +17,13 @@ import com.example.pingsunyi.wallpaper.Models.Photo;
 import com.example.pingsunyi.wallpaper.R;
 import com.example.pingsunyi.wallpaper.Utils.Functions;
 import com.example.pingsunyi.wallpaper.Utils.GlideApp;
+import com.example.pingsunyi.wallpaper.Utils.RealmController;
 import com.example.pingsunyi.wallpaper.Webservices.ApiInterface;
 import com.example.pingsunyi.wallpaper.Webservices.ServiceGenerator;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
+import butterknife.BindDrawable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -44,9 +47,17 @@ public class FullScreenPhotoActivity extends AppCompatActivity {
     @BindView(R.id.activity_fullscreen_photo_username)
     TextView username;
 
+    @BindDrawable(R.drawable.ic_check_favorite)
+    Drawable icFavorite;
+    @BindDrawable(R.drawable.ic_check_favorited)
+    Drawable icFavorited;
+
     private Bitmap photoBitmap;
 
     private Unbinder unbinder;
+    private Photo photo;
+
+    private RealmController realmController;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,6 +68,11 @@ public class FullScreenPhotoActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String photoId = intent.getStringExtra("photoId");
         getPhoto(photoId);
+
+        realmController = new RealmController();
+        if (realmController.isPhotoExist(photoId)) {
+            fabFavorite.setImageDrawable(icFavorited);
+        }
     }
 
     private void getPhoto(String id) {
@@ -66,7 +82,7 @@ public class FullScreenPhotoActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Photo> call, Response<Photo> response) {
                 if (response.isSuccessful()) {
-                    Photo photo = response.body();
+                    photo = response.body();
                     updateUI(photo);
                 }
             }
@@ -102,8 +118,22 @@ public class FullScreenPhotoActivity extends AppCompatActivity {
 
     @OnClick(R.id.activity_fullscreen_photo_fab_favorite)
     public void setFabFavorite() {
+        if (realmController.isPhotoExist(photo.getId())) {
+            realmController.deletePhoto(photo);
+            fabFavorite.setImageDrawable(icFavorite);
+            Toast.makeText(FullScreenPhotoActivity.this, "Remove Favorite", Toast.LENGTH_LONG).show();
+        } else {
+            realmController.savePhoto(photo);
+            fabFavorite.setImageDrawable(icFavorited);
+            Toast.makeText(FullScreenPhotoActivity.this, "Favorited", Toast.LENGTH_LONG).show();
+        }
+
         fabMenu.close(true);
     }
+
+
+
+
 
     @OnClick(R.id.activity_fullscreen_photo_fab_wallpaper)
     public void setFabWallpaper() {
